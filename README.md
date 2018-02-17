@@ -1,5 +1,7 @@
-<<<<<<< HEAD
-Bot de telegram para recibir notificaciones varias sobre proyectos de Teknotrol.\n\n Inicialmente para propositos de desarrollo.
-=======
-# cardenal
->>>>>>> 956c00211fd21739f52de22cdf27c5598c933327
+# Cardenal
+
+Servidor socket que redirecciona los mensajes a una serie de scriptores de un canal de telegram.
+
+Complementariamente se pueden desarrollar clientes para enviar mensajes de forma programatica.
+
+Fue desarrollada para enviar logs de scripts y demas via mensajes de telegram
