@@ -3,7 +3,7 @@
 import datetime
 from peewee import *
 
-DATABASE = '/var/www/cardenal/cardenal.db'
+DATABASE = 'cardenal.db'
 
 database = SqliteDatabase(DATABASE)
 

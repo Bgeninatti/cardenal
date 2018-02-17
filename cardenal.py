@@ -5,6 +5,7 @@ from functools import wraps
 from playhouse.shortcuts import model_to_dict
 from telegram.ext import Updater, CommandHandler, MessageHandler, Job, Filters
 from models import User, Notificacion
+from zmq_server import CardenalZmqServer
 
 # Enable logging
 logging.basicConfig(
@@ -14,19 +15,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 NOTIFICATIONS_PERIOD = 10
-
-
-def check_for_notifications(bot, job):
-    user = User.get(User.id == job.context['id'])
-    for s in user.notificaciones:
-        if not s.notified:
-            bot.sendMessage(
-                user.id,
-                text=s.msg
-            )
-            s.notified = True
-            s.notified_timestamp = datetime.datetime.now()
-            s.save()
+BOT_KEY = "439216016:AAHLviPHBfgnSCdRn8iZk8XtFkH5ZzvnfTk"
 
 
 def check_auth(func):
@@ -55,59 +44,62 @@ def check_auth(func):
             first_name=user.first_name,
         )
         user_data['user'] = user
-        if created:
-            dp.job_queue.run_repeating(
-                check_for_notifications,
-                NOTIFICATIONS_PERIOD,
-                context=model_to_dict(user_data['user'])
-            )
         return func(bot, update, user_data, job_queue, *args, **kwargs)
     return wrapped
 
 
-@check_auth
-def start(bot, update, user_data, job_queue):
-    msg = 'Bienvenido {0}... \n\n'.format(
-        user_data['user'].first_name)
-    msg += 'Tu información para generar notificaciones es la siguiente: \n'
-    msg += ' ID: {} \n'.format(user_data['user'].id)
-    msg += ' username: {} \n'.format(user_data['user'].username)
-    update.message.reply_text(msg)
+class Cardenal(object):
 
+    def __init__(self, bot_key=BOT_KEY):
+        self.zmq_server = CardenalZmqServer()
+        self.updater = Updater(bot_key)
+        self.dp = self.updater.dispatcher
 
-def error(bot, update, error):
-    logger.warn('Update "%s" caused error "%s"' % (update, error))
-
-
-def main():
-    # Create the EventHandler and pass it your bot's token.
-    updater = Updater("439216016:AAHLviPHBfgnSCdRn8iZk8XtFkH5ZzvnfTk")
-
-    # Get the dispatcher to register handlers
-    dp = updater.dispatcher
-
-    for p in User.select():
-        dp.job_queue.run_repeating(
-            check_for_notifications,
-            NOTIFICATIONS_PERIOD,
-            context=model_to_dict(p)
+        self.dp.job_queue.run_repeating(
+            self.check_for_notifications,
+            NOTIFICATIONS_PERIOD
         )
 
-    dp.add_handler(CommandHandler(
-        "start",
-        start,
-        pass_user_data=True,
-        pass_job_queue=True))
-    dp.add_handler(MessageHandler(
-        Filters.text,
-        start,
-        pass_user_data=True,
-        pass_job_queue=True))
+        self.dp.add_handler(CommandHandler(
+            "start",
+            self.start,
+            pass_user_data=True,
+            pass_job_queue=True))
+        self.dp.add_handler(MessageHandler(
+            Filters.text,
+            self.start,
+            pass_user_data=True,
+            pass_job_queue=True))
+        self.dp.add_error_handler(self.error)
 
-    dp.add_error_handler(error)
-    updater.start_polling()
-    updater.idle()
+    def check_for_notifications(self, bot, job):
+        users = User.select()
+        new_msgs = self.zmq_server.check_msgs()
+        logger.info(new_msgs)
+        for m in new_msgs:
+            user = users.where((User.id == m['user_id'])).get()
+            bot.sendMessage(
+                user.id,
+                text=m['msg']
+            )
+
+    @check_auth
+    def start(self, bot, update, user_data, job_queue):
+        msg = 'Bienvenido {0}... \n\n'.format(
+            user_data['user'].first_name)
+        msg += 'Tu información para generar notificaciones es la siguiente: \n'
+        msg += ' ID: {} \n'.format(user_data['user'].id)
+        msg += ' username: {} \n'.format(user_data['user'].username)
+        update.message.reply_text(msg)
+
+    def error(self, bot, update, error):
+        logger.warn('Update "%s" caused error "%s"' % (update, error))
+
+    def run(self):
+        self.updater.start_polling()
+        self.updater.idle()
 
 
 if __name__ == '__main__':
-    main()
+    instance = Cardenal()
+    instance.run()
