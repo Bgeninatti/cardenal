@@ -18,6 +18,10 @@ class CardenalZmqServer(object):
         self._command_poller_timeout = command_poller_timeout
         self._command_poller.register(self._command_socket)
 
+    def stop(self):
+        self._command_socket.close()
+        self._context.term()
+
     def check_msgs(self):
         '''
             Tiene que recibir un diccionario json con las siguientes claves:
@@ -30,24 +34,27 @@ class CardenalZmqServer(object):
         socks = self._command_poller.poll(self._command_poller_timeout)
         msgs_buffer = []
         for socket, _ in socks:
-            msg_string = socket.recv_string()
             try:
-                msg = json.loads(msg_string)
-            except ValueError:
+                msg = socket.recv_json()
+                if type(msg) is not dict:
+                    raise TypeError
+            except (json.decoder.JSONDecodeError, TypeError) as e:
                 socket.send_string(json.dumps({
                     'status': 500,
-                    'msg': "Error en formato del comando. No es compatible con el formato JSON"}))
+                    'msg': "Error en formato del comando."}))
                 continue
             if 'msg' not in msg.keys():
                 socket.send_string(json.dumps({
                     'status': 501,
-                    'msg': "No se especifico un mensaje para la notificación."}))
+                    'msg': "No se especifico un mensaje para la notificación."
+                }))
                 continue
 
-            if 'username' not in msg.keys() and 'user_id' not in msg.keys():
+            if all((k not in ('username', 'usernames', 'user_id', 'users_ids') for k in msg.keys())):
                 socket.send_string(json.dumps({
                     'status': 502,
-                    'msg': "No se especifico username o user_id."}))
+                    'msg': 'No se especifico ningún destinatario para el ' +
+                    'mensaje.'}))
                 continue
             socket.send_string(json.dumps({
                 'status': 200,
