@@ -70,31 +70,35 @@ class Cardenal(object):
 
         self._dp.add_handler(CommandHandler(
             "start",
-            self.start,
+            self._start,
             pass_user_data=True))
         self._dp.add_handler(MessageHandler(
             Filters.text,
-            self.start,
+            self._start,
             pass_user_data=True))
-        self._dp.add_error_handler(self.error)
+        self._dp.add_error_handler(self._error)
 
     def check_for_notifications(self, bot, job):
         users = User.select()
         while not self._zmq_server.msgs_queue.empty():
             msg = self._zmq_server.msgs_queue.get()
-            user = users.where((User.id == msg['user_id']) | (User.username == msg['username'])).get()
-            try:
-                self.logger.info("Enviando mensaje a {0}.".format(user.username))
-                bot.sendMessage(
-                    user.id,
-                    text=msg['msg']
-                )
-            except TimedOut:
-                self.logger.error('Timeout enviando el mensaje {0}'.format(msg))
-                self._zmq_server.msgs_queue.put(msg)
+            query = users.where((User.id == msg['user_id']) | (User.username == msg['username']))
+            if query.exists():
+                user = query.get()
+                try:
+                    self.logger.info("Enviando mensaje a {0}.".format(user.username))
+                    bot.sendMessage(
+                        user.id,
+                        text=msg['msg']
+                    )
+                except TimedOut:
+                    self.logger.error('Timeout enviando el mensaje {0}'.format(msg))
+                    self._zmq_server.msgs_queue.put(msg)
+            else:
+                self.logger.error('El usuario {} no existe'.format(msg['username'] or msg['user_id']))
 
     @check_auth
-    def start(self, bot, update, user_data):
+    def _start(self, bot, update, user_data):
         msg = 'Bienvenido {0}... \n\n'.format(
             user_data['user'].first_name)
         msg += 'Tu información para generar notificaciones es la siguiente: \n'
@@ -102,7 +106,7 @@ class Cardenal(object):
         msg += ' username: {} \n'.format(user_data['user'].username)
         update.message.reply_text(msg)
 
-    def error(self, bot, update, error):
+    def _error(self, bot, update, error):
         self.logger.warn('Update "%s" caused error "%s"' % (update, error))
 
     def run(self):
