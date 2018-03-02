@@ -16,7 +16,7 @@ class MockClient(object):
         self.socket.close()
         self.context.term()
 
-    def crear_notificacion(self, msg, user_id=None, username=None):
+    def send_msg(self, msg, user_id=None, username=None):
         if user_id is not None:
             msg = json.dumps({'msg': msg, 'user_id': user_id})
         elif username is not None:
