@@ -131,11 +131,3 @@ Voila!
 .. _peewee: http://docs.peewee-orm.com/en/latest/
 .. _`python-telegram-bot`: https://github.com/python-telegram-bot/python-telegram-bot
 .. _pyzmq: https://learning-0mq-with-pyzmq.readthedocs.io/en/latest/
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
