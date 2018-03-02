@@ -1,6 +1,6 @@
 import unittest
 import zmq
-from zmq_server import CardenalZmqServer
+from Cardenal.zmq_server import CardenalZmqServer
 
 
 class MockClient(object):
@@ -18,38 +18,34 @@ class MockClient(object):
 
     def send_msg(self, msg, user_id=None, username=None):
         if user_id is not None:
-            msg = json.dumps({'msg': msg, 'user_id': user_id})
+            msg = {'msg': msg, 'user_id': user_id}
         elif username is not None:
-            msg = json.dumps({'msg': msg, 'username': username})
+            msg = {'msg': msg, 'username': username}
         else:
             raise ValueError("Se debe especificar username o user_id como" +
                              "parámetros")
 
-        self.socket.send_string(msg)
-        socks = self.poller.poll(10)
+        self.socket.send_json(msg)
 
 
 class ZMQServerTest(unittest.TestCase):
 
     def setUp(self):
-        self.server = CardenalZmqServer()
         self.client = MockClient()
 
     def tearDown(self):
-        self.server.stop()
         self.client.stop()
 
-    def test_empty(self):
-        msgs = self.server.check_msgs()
-        self.assertEqual(len(msgs), 0)
+    @classmethod
+    def setUpClass(cls):
+        cls.server = CardenalZmqServer()
 
-    def test_500_not_json(self):
-        self.client.socket.send_string("asd")
-        msgs = self.server.check_msgs()
-        rta = self.client.socket.recv_json()
-        self.assertEqual(rta['status'], 500)
+    @classmethod
+    def tearDownClass(cls):
+        cls.server._command_socket.close()
+        cls.server._context.term()
 
-    def test_500_not_dict(self):
+    def test_500(self):
         self.client.socket.send_json("asd")
         msgs = self.server.check_msgs()
         rta = self.client.socket.recv_json()

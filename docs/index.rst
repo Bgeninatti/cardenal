@@ -103,7 +103,7 @@ For more information please go to section `Clients`
 Here we have an example of how to send messages using the client `cardenal-python-client`_::
 
 
-    >> from CardenalClient.client import CardenalCliet
+    >> from CardenalClient.client import CardenalClient
     >> cli = CardenalClient('localhost')  # This is because we are running the server localy
     >> user_id = 12345  # My telegram ID. Cardenal send you this when you log to the server (go to step 3)
     >> username = 'myUsername'  # Telegram Username
@@ -125,7 +125,7 @@ Voila!
 
 
 .. _ZMQ: http://zeromq.org/
-.. _cardenal-python-client: http://github.com
+.. _cardenal-python-client: https://github.com/Bgeninatti/cardenal-python-client
 .. _BotFather: https://core.telegram.org/bots#6-botfather
 .. _`ZMQ lenguage Bindings`: http://zeromq.org/bindings:_start
 .. _peewee: http://docs.peewee-orm.com/en/latest/

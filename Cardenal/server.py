@@ -84,7 +84,7 @@ class Cardenal(object):
             msg = self._zmq_server.msgs_queue.get()
             user = users.where((User.id == msg['user_id']) | (User.username == msg['username'])).get()
             try:
-                self.logger("Enviando mensaje a {0}.".format(user.username))
+                self.logger.info("Enviando mensaje a {0}.".format(user.username))
                 bot.sendMessage(
                     user.id,
                     text=msg['msg']
