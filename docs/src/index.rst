@@ -52,26 +52,37 @@ Getting started
 
 The first step is create your own Telegram Bot with the help of the BotFather_.
 
-Once you have the **token** add it to the config file in `config/cardenal.conf` under the variable name ``bot_token``.
+Once you have the **token** you have to save it in some place that you know you wont lose it. We will need this later.
 
 Should not be necesary any additional configuration besides a basic bot should be necesary to make this work.
 
-Lets say, Cardenal only provide the interface between your code and your bot. The bot that you use is yours. Cardenal it self is not a Bot.
+Lets say, Cardenal only provide the interface between your code and your bot. The bot that you use is yours.
+Cardenal it self is not a bot, is just a tool that uses the bot.
 
 
-2. Run it
+2. Install
 ^^^^^^^^^^^^^^^^^^^^^
 
-To run Cardenal localy, in a unix console run::
+In order to install Cardenal you can do the usual: ``python setup.py install``
 
-    $ cd <path-to-cardenal>
-    $ pyvenv venv
-    $ source venv/bin/activate
-    $ pip3 install -r requirements.txt
-    $ python3 models.py
-    $ python3 cardenal.py
+The dependencies of the Cardenal package are:
+ #. peewee_
+ #. `python-telegram-bot`_
+ #. pyzmq_
 
-With ``cardenal.py`` running you should suscribte to the bot in your Telegram account.
+
+3. Run it
+^^^^^^^^^^^^^^^^^^^^^
+
+Once installed run the following code::
+
+>>> from Cardenal.server import Cardenal
+>>> BOT_KEY = 'your-bot-key'  # This is the one that we get in step 1
+>>> DB_PATH = 'path/to/database.db'  # This is the sqlite database path where we'll store the users information
+>>> server = Cardenal(BOT_KEY, DB_PATH)  # This will create the database and tables in case that doesn't exist yet
+>>> server.run()  # This will start the server.
+
+With the server running you should suscribe to the bot in your Telegram account.
 If everything is right the bot will send you a messages with your data.
 
 
@@ -81,22 +92,23 @@ If everything is right the bot will send you a messages with your data.
       :width: 250pt
       :align: center
 
-3. Clients
+4. Clients
 ^^^^^^^^^^^^^^^^^^^^
 
-El servidor Cardenal está escrito en Python, aunque su estructura permite operar con clientes escritos en distintos lenguajes.
-Cualquier lenguaje que soporte la librería de mensajes ZMQ y pueda motar un socket SUB es factible de funcionar como cliente de Cardenal.
+Cardenal server is coded in python, but the fact that we use the ZMQ library allows you to operate with clients for different lenguagges.
+Any language that support the ZMQ library and allows to mount a PUB/SUB scheme if factible to function as Cardenal client.
 
-Para mas información revisa la sección `Clientes`
+For more information please go to section `Clients`
 
-A continuación un ejemplo de como enviar mensajes con el cliente ``cardenal-python-client``::
+Here we have an example of how to send messages using the client `cardenal-python-client`_::
+
 
     >> from CardenalClient.client import CardenalCliet
-    >> cli = CardenalClient('localhost')  # Estoy ejecutado el servidor localmente
-    >> user_id = 12345  # Id de usuario de telegram
-    >> username = 'myUsername'  # Username de telegram
-    >> cli.txt_msg('Mensaje utilizando mi user ID', user_id=user_id)
-    >> cli.txt_msg('Mensaje utilizado mi username', username=username)
+    >> cli = CardenalClient('localhost')  # This is because we are running the server localy
+    >> user_id = 12345  # My telegram ID. Cardenal send you this when you log to the server (go to step 3)
+    >> username = 'myUsername'  # Telegram Username
+    >> cli.txt_msg('Message using my user ID', user_id=user_id)
+    >> cli.txt_msg('Message using my username', username=username)
 
 Voila!
 
@@ -116,6 +128,10 @@ Voila!
 .. _cardenal-python-client: http://github.com
 .. _BotFather: https://core.telegram.org/bots#6-botfather
 .. _`ZMQ lenguage Bindings`: http://zeromq.org/bindings:_start
+.. _peewee: http://docs.peewee-orm.com/en/latest/
+.. _`python-telegram-bot`: https://github.com/python-telegram-bot/python-telegram-bot
+.. _pyzmq: https://learning-0mq-with-pyzmq.readthedocs.io/en/latest/
+
 
 Indices and tables
 ==================

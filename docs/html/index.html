@@ -1,0 +1,329 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Cardenal &mdash; Cardenal 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="Cardenal 1.0 documentation" href="#"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> Cardenal
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Cardenal</a><ul>
+<li><a class="reference internal" href="#first-advice">First advice</a></li>
+<li><a class="reference internal" href="#what-it-does">What it does?</a></li>
+<li><a class="reference internal" href="#about-the-name">About the name</a></li>
+<li><a class="reference internal" href="#limitations">Limitations</a></li>
+<li><a class="reference internal" href="#getting-started">Getting started</a><ul>
+<li><a class="reference internal" href="#create-your-own-bot">1. Create your own bot</a></li>
+<li><a class="reference internal" href="#install">2. Install</a></li>
+<li><a class="reference internal" href="#run-it">3. Run it</a></li>
+<li><a class="reference internal" href="#clients">4. Clients</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Cardenal</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>Cardenal</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cardenal">
+<h1>Cardenal<a class="headerlink" href="#cardenal" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="first-advice">
+<h2>First advice<a class="headerlink" href="#first-advice" title="Permalink to this headline">¶</a></h2>
+<p>If you are a person that have to run time demanding process or tests in some project and feel the need to notify events or logs easily to your cellphone, then you are in the right place.</p>
+<p>If you don’t but still feel courious about what Cardenal is… ok, just keep reading.</p>
+</div>
+<div class="section" id="what-it-does">
+<h2>What it does?<a class="headerlink" href="#what-it-does" title="Permalink to this headline">¶</a></h2>
+<p>Cardenal is a TCP server (uses the library <a class="reference external" href="http://zeromq.org/">ZMQ</a>) that recives text messages (in an early future images too!) and forward them to a certain clients that have made suscription to a Telegram bot.</p>
+<p>The server is coded entearly in python, but the clients could be for any language that supports ZMQ. A good start to know the alcance is check the <a class="reference external" href="http://zeromq.org/bindings:_start">ZMQ lenguage Bindings</a></p>
+<p>The first client was for python too and is the one that we use in this documentation for our examples. You can check the project in te GitHub repository here: <a class="reference external" href="http://github.com">cardenal-python-client</a></p>
+</div>
+<div class="section" id="about-the-name">
+<h2>About the name<a class="headerlink" href="#about-the-name" title="Permalink to this headline">¶</a></h2>
+<p>Cardenal is a bird from my region in Argentina. A very fancy bird. Here’s the guy</p>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/cardenal.jpg"><img alt="_images/cardenal.jpg" src="_images/cardenal.jpg" style="width: 300pt;" /></a>
+</div>
+<p>The main reason of this name is that I usually take species of the fauna of my country for my projects.
+Beside this, the idea of a bird sounds great for the purpose of this project.</p>
+</div>
+<div class="section" id="limitations">
+<h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">¶</a></h2>
+<p>Is not tested (yet) to work with high demanding enviroments like houndred of clients and thousend of messages.
+The early concept should be used with a few persons and a few events and messages running in a local server, mostly for testing.
+More intensive and demanding uses still being tested.</p>
+</div>
+<div class="section" id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="create-your-own-bot">
+<h3>1. Create your own bot<a class="headerlink" href="#create-your-own-bot" title="Permalink to this headline">¶</a></h3>
+<p>The first step is create your own Telegram Bot with the help of the <a class="reference external" href="https://core.telegram.org/bots#6-botfather">BotFather</a>.</p>
+<p>Once you have the <strong>token</strong> you have to save it in some place that you know you wont lose it. We will need this later.</p>
+<p>Should not be necesary any additional configuration besides a basic bot should be necesary to make this work.</p>
+<p>Lets say, Cardenal only provide the interface between your code and your bot. The bot that you use is yours.
+Cardenal it self is not a bot, is just a tool that uses the bot.</p>
+</div>
+<div class="section" id="install">
+<h3>2. Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h3>
+<p>In order to install Cardenal you can do the usual: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">install</span></code></p>
+<dl class="docutils">
+<dt>The dependencies of the Cardenal package are:</dt>
+<dd><ol class="first last arabic simple">
+<li><a class="reference external" href="http://docs.peewee-orm.com/en/latest/">peewee</a></li>
+<li><a class="reference external" href="https://github.com/python-telegram-bot/python-telegram-bot">python-telegram-bot</a></li>
+<li><a class="reference external" href="https://learning-0mq-with-pyzmq.readthedocs.io/en/latest/">pyzmq</a></li>
+</ol>
+</dd>
+</dl>
+</div>
+<div class="section" id="run-it">
+<h3>3. Run it<a class="headerlink" href="#run-it" title="Permalink to this headline">¶</a></h3>
+<p>Once installed run the following code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Cardenal.server</span> <span class="k">import</span> <span class="n">Cardenal</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">BOT_KEY</span> <span class="o">=</span> <span class="s1">&#39;your-bot-key&#39;</span>  <span class="c1"># This is the one that we get in step 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">DB_PATH</span> <span class="o">=</span> <span class="s1">&#39;path/to/database.db&#39;</span>  <span class="c1"># This is the sqlite database path where we&#39;ll store the users information</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">Cardenal</span><span class="p">(</span><span class="n">BOT_KEY</span><span class="p">,</span> <span class="n">DB_PATH</span><span class="p">)</span>  <span class="c1"># This will create the database and tables in case that doesn&#39;t exist yet</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>  <span class="c1"># This will start the server.</span>
+</pre></div>
+</div>
+<p>With the server running you should suscribe to the bot in your Telegram account.
+If everything is right the bot will send you a messages with your data.</p>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/ex_01.gif"><img alt="_images/ex_01.gif" src="_images/ex_01.gif" style="width: 250pt;" /></a>
+</div>
+</div>
+<div class="section" id="clients">
+<h3>4. Clients<a class="headerlink" href="#clients" title="Permalink to this headline">¶</a></h3>
+<p>Cardenal server is coded in python, but the fact that we use the ZMQ library allows you to operate with clients for different lenguagges.
+Any language that support the ZMQ library and allows to mount a PUB/SUB scheme if factible to function as Cardenal client.</p>
+<p>For more information please go to section <cite>Clients</cite></p>
+<p>Here we have an example of how to send messages using the client <a class="reference external" href="http://github.com">cardenal-python-client</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="kn">from</span> <span class="nn">CardenalClient.client</span> <span class="k">import</span> <span class="n">CardenalCliet</span>
+<span class="o">&gt;&gt;</span> <span class="n">cli</span> <span class="o">=</span> <span class="n">CardenalClient</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">)</span>  <span class="c1"># This is because we are running the server localy</span>
+<span class="o">&gt;&gt;</span> <span class="n">user_id</span> <span class="o">=</span> <span class="mi">12345</span>  <span class="c1"># My telegram ID. Cardenal send you this when you log to the server (go to step 3)</span>
+<span class="o">&gt;&gt;</span> <span class="n">username</span> <span class="o">=</span> <span class="s1">&#39;myUsername&#39;</span>  <span class="c1"># Telegram Username</span>
+<span class="o">&gt;&gt;</span> <span class="n">cli</span><span class="o">.</span><span class="n">txt_msg</span><span class="p">(</span><span class="s1">&#39;Message using my user ID&#39;</span><span class="p">,</span> <span class="n">user_id</span><span class="o">=</span><span class="n">user_id</span><span class="p">)</span>
+<span class="o">&gt;&gt;</span> <span class="n">cli</span><span class="o">.</span><span class="n">txt_msg</span><span class="p">(</span><span class="s1">&#39;Message using my username&#39;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Voila!</p>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/ex_02.gif"><img alt="_images/ex_02.gif" src="_images/ex_02.gif" style="width: 250pt;" /></a>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Bruno Geninatti.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

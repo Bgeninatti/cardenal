@@ -3,8 +3,16 @@
 import datetime
 from peewee import *
 
+database = SqliteDatabase(None)
 
-class User(Model):
+
+class BaseModel(Model):
+
+    class Meta:
+        database = database
+
+
+class User(BaseModel):
     username = CharField(unique=True)
     last_name = CharField()
     first_name = CharField()
@@ -15,10 +23,7 @@ class User(Model):
 
 
 def init_db(db_path):
-    tables = [User]
-    database = SqliteDatabase(db_path)
-    for t in tables:
-        t._meta.database = database
+    database.init(db_path)
     database.connect()
-    database.create_tables(tables)
+    database.create_tables([User])
     return database

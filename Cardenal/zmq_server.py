@@ -1,8 +1,8 @@
 import zmq
 import json
+import logging
 from threading import Thread
 from queue import Queue
-from utils import logger
 
 
 class CardenalZmqServer(object):
@@ -15,6 +15,7 @@ class CardenalZmqServer(object):
         self.logger = logging.getLogger('Cardenal.zmq')
         self.logger.setLevel(log_lvl)
         self._stop = False
+        self._command_port = command_port
         self.msgs_queue = Queue()
         self._context = zmq.Context()
         self._command_socket = self._context.socket(zmq.REP)
@@ -23,7 +24,7 @@ class CardenalZmqServer(object):
         self._msgs_thread = Thread(target=self.check_msgs)
 
     def start(self):
-        self._command_socket.bind("tcp://*:{0}".format(command_port))
+        self._command_socket.bind("tcp://*:{0}".format(self._command_port))
         self._command_poller.register(self._command_socket)
         self._msgs_thread.start()
 
@@ -55,12 +56,14 @@ class CardenalZmqServer(object):
                     socket.send_string(json.dumps({
                         'status': 500,
                         'msg': "Error en formato del comando."}))
+                    self.logger.error("ERROR 500: Error en formato del comando.")
                     continue
                 if 'msg' not in msg.keys():
                     socket.send_string(json.dumps({
                         'status': 501,
                         'msg': "No se especifico un mensaje para la notificación."
                     }))
+                    self.logger.error("ERROR 501: No se especifico un mensaje para la notificación.")
                     continue
 
                 if all((k not in ('username', 'usernames', 'user_id', 'users_ids') for k in msg.keys())):
@@ -68,8 +71,10 @@ class CardenalZmqServer(object):
                         'status': 502,
                         'msg': 'No se especifico ningún destinatario para el ' +
                         'mensaje.'}))
+                    self.logger.error("ERROR 502: No se especifico ningún destinatario para el mensaje.")
                     continue
                 socket.send_string(json.dumps({
                     'status': 200,
                     'msg': "Notificacion creada correctamente"}))
+                self.logger.info("Notificacion creada correctamente.")
                 self.msgs_queue.put(msg)
