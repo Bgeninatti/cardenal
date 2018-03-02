@@ -39,8 +39,6 @@ class CardenalZmqServer(object):
             Tiene que recibir un diccionario json con las siguientes claves:
               user_id: int,
               username: text,
-              usernames: list,
-              users_ids: list,
               msg: text
             Se debe especificar user_id o username. Si ambos están presentes se
             usa username
@@ -66,7 +64,7 @@ class CardenalZmqServer(object):
                 self.logger.error("ERROR 501: No se especifico un mensaje para la notificación.")
                 continue
 
-            if all((k not in ('username', 'usernames', 'user_id', 'users_ids') for k in msg.keys())):
+            if all((k not in ('username', 'user_id') for k in msg.keys())):
                 socket.send_string(json.dumps({
                     'status': 502,
                     'msg': 'No se especifico ningún destinatario para el ' +
