@@ -12,7 +12,7 @@ Cardenal is a TCP server (uses the library [ZMQ](http://zeromq.org/)) that reciv
 
 The server is coded entearly in python, but the clients could be for any language that supports ZMQ. A good start to know the alcance is check the [ZMQ lenguage Bindings](http://zeromq.org/bindings:_start)
 
-The first client was for python too and is the one that we use in this documentation for our examples. You can check the project in te GitHub repository here: (cardenal-python-client)[https://github.com/Bgeninatti/cardenal-python-client]
+The first client was for python too and is the one that we use in this documentation for our examples. You can check the project in te GitHub repository here: [cardenal-python-client](https://github.com/Bgeninatti/cardenal-python-client)
 
 ## Documentation
 
