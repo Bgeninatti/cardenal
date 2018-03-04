@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 import datetime
-from peewee import *
+from peewee import (Model, CharField, DateTimeField, SqliteDatabase,
+                    ForeignKeyField, CompositeKey)
 
 database = SqliteDatabase(None)
 
@@ -18,8 +19,20 @@ class User(BaseModel):
     last_login = DateTimeField(default=datetime.datetime.now)
 
 
+class Generator(BaseModel):
+    name = CharField(unique=True)
+
+
+class Suscriptions(BaseModel):
+    user = ForeignKeyField(User)
+    generator = ForeignKeyField(Generator)
+
+    class Meta:
+        primary_key = CompositeKey('generator', 'user')
+
+
 def init_db(db_path):
     database.init(db_path)
     database.connect()
-    database.create_tables([User])
+    database.create_tables([User, Generator, Suscriptions])
     return database
