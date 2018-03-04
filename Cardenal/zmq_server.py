@@ -37,8 +37,7 @@ class CardenalZmqServer(object):
     def check_msgs(self):
         '''
             Tiene que recibir un diccionario json con las siguientes claves:
-              user_id: int,
-              users_ids: list,
+              generator: text,
               msg: text
             Se debe especificar user_id.
         '''
