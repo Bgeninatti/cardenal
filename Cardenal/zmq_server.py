@@ -35,12 +35,12 @@ class CardenalZmqServer(object):
         self._msgs_thread.join()
 
     def check_msgs(self):
-        '''
+        """
             Tiene que recibir un diccionario json con las siguientes claves:
               generator: text,
               msg: text
             Se debe especificar user_id.
-        '''
+        """
         msgs = []
         socks = self._command_poller.poll(self._command_poller_timeout)
         for socket, _ in socks:
@@ -58,15 +58,15 @@ class CardenalZmqServer(object):
             if 'msg' not in msg.keys():
                 socket.send_string(json.dumps({
                     'status': 501,
-                    'msg': "No se especifico un mensaje para la notificación."
+                    'msg': "No se especificó un mensaje para la notificación."
                 }))
-                self.logger.error("ERROR 501: No se especifico un mensaje " +
+                self.logger.error("ERROR 501: No se especificó un mensaje " +
                                   "para la notificación.")
                 continue
 
             socket.send_string(json.dumps({
                 'status': 200,
-                'msg': "Notificacion creada correctamente"}))
+                'msg': "Notificación creada correctamente"}))
             msgs.append(msg)
         return msgs
 
@@ -74,5 +74,5 @@ class CardenalZmqServer(object):
         while not self._stop:
             msgs = self.check_msgs()
             for m in msgs:
-                self.logger.info("Notificacion creada correctamente.")
+                self.logger.info("Notificación creada correctamente.")
                 self.msgs_queue.put(m)
