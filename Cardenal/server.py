@@ -3,7 +3,7 @@ import logging
 from functools import wraps
 from telegram.ext import Updater, CommandHandler, MessageHandler, ConversationHandler, Job, Filters
 from telegram.error import TimedOut
-from .models import User, init_db
+from .models import User, init_db, Suscriptions, Generator
 from .zmq_server import CardenalZmqServer
 
 logging.basicConfig(
@@ -68,24 +68,46 @@ class Cardenal(object):
             pass_user_data=True))
         self._dp.add_error_handler(self._error)
 
+    def get_generator(self, generator_name):
+        generator, created = Generator.get_or_create(
+            name=generator_name,
+        )
+
+        if created:
+            self.logger.info("Nuevo Generator creado: {0}".format(generator_name))
+
+        return generator
+
+    def get_users_subscribed(self, generator_id):
+        """Find users susbcribed to the Generator ``generator_id``"""
+
+        query = Suscriptions.select(Suscriptions.user).where((Generator.id == generator_id))
+        if query.exists():
+            users = [susbcription.user for susbcription in query.get()]
+        else:
+            users = []
+
+        return users
+
     def check_for_notifications(self, bot, job):
-        users = User.select()
         while not self._zmq_server.msgs_queue.empty():
             msg = self._zmq_server.msgs_queue.get()
-            query = users.where((User.id == msg['user_id']))
-            if query.exists():
-                user = query.get()
-                try:
-                    self.logger.info("Enviando mensaje a {0}.".format(user.id))
-                    bot.sendMessage(
-                        user.id,
-                        text=msg['msg']
-                    )
-                except TimedOut:
-                    self.logger.error('Timeout enviando el mensaje {0}'.format(msg))
-                    self._zmq_server.msgs_queue.put(msg)
+            generator = self.get_generator(msg["generator"])
+            users = self.get_users_subscribed(generator.id)
+            if users:
+                for user in users:
+                    try:
+                        self.logger.info("Enviando mensaje a {0}.".format(user.id))
+                        bot.sendMessage(
+                            user.id,
+                            text=msg['msg']
+                        )
+                    except TimedOut:
+                        self.logger.error('Timeout enviando el mensaje {0}'.format(msg))
+                        #self._zmq_server.msgs_queue.put(msg)
             else:
-                self.logger.error('El usuario {} no existe'.format(msg['user_id']))
+                error = 'El Generador {} no tiene Usuarios suscriptos'.format(msg['generator'])
+                self.logger.error(error)
 
     @check_auth
     def _start(self, bot, update, user_data):
