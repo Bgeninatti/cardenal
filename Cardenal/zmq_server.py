@@ -54,21 +54,16 @@ class CardenalZmqServer(object):
                     'msg': "Error en formato del comando."}))
                 self.logger.error("ERROR 500: Error en formato del comando.")
                 continue
+
             if 'msg' not in msg.keys():
                 socket.send_string(json.dumps({
                     'status': 501,
                     'msg': "No se especifico un mensaje para la notificación."
                 }))
-                self.logger.error("ERROR 501: No se especifico un mensaje para la notificación.")
+                self.logger.error("ERROR 501: No se especifico un mensaje " +
+                                  "para la notificación.")
                 continue
 
-            if 'user_id' not in msg.keys():
-                socket.send_string(json.dumps({
-                    'status': 502,
-                    'msg': 'No se especifico ningún destinatario para el ' +
-                    'mensaje.'}))
-                self.logger.error("ERROR 502: No se especifico ningún destinatario para el mensaje.")
-                continue
             socket.send_string(json.dumps({
                 'status': 200,
                 'msg': "Notificacion creada correctamente"}))
