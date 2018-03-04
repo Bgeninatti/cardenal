@@ -88,13 +88,12 @@ class Cardenal(object):
     def get_users_subscribed(self, generator_id):
         """Find users susbcribed to the Generator ``generator_id``"""
 
-        query = Suscriptions.select(Suscriptions.user).where((Generator.id == generator_id))
-        if query.exists():
-            users = [susbcription.user for susbcription in query.get()]
-        else:
-            users = []
+        query = Suscriptions.select(Suscriptions.user).where(
+            (Suscriptions.generator == generator_id)
+        )
 
-        return users
+        if query.exists():
+            return [susbcription.user for susbcription in query]
 
     def check_for_notifications(self, bot, job):
         while not self._zmq_server.msgs_queue.empty():
