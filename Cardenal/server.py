@@ -3,7 +3,7 @@ import logging
 from functools import wraps
 from telegram.ext import Updater, CommandHandler, MessageHandler, ConversationHandler, Job, Filters
 from telegram.error import TimedOut
-from .models import User, init_db
+from .models import User, Generator, Suscriptions, init_db
 from .zmq_server import CardenalZmqServer
 
 logging.basicConfig(
@@ -25,7 +25,14 @@ def check_auth(func):
             first_name=user.first_name,
         )
         if created:
-            self.logger.info("Usuario {} creado".format(user.id))
+            generators = Generator.select()
+            for g in generators:
+                Suscriptions.create(user=user.id, generator=g.id)
+
+            self.logger.info(
+                "Usuario {0} creado y suscripto a {1} generadores".format(
+                    user.id, generators.count()))
+
         user_data['user'] = user
         return func(self, bot, update, user_data, *args, **kwargs)
     return wrapped
