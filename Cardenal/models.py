@@ -13,13 +13,9 @@ class BaseModel(Model):
 
 
 class User(BaseModel):
-    username = CharField(unique=True)
     last_name = CharField()
     first_name = CharField()
     last_login = DateTimeField(default=datetime.datetime.now)
-
-    class Meta:
-        order_by = ('username',)
 
 
 def init_db(db_path):

@@ -17,25 +17,15 @@ def check_auth(func):
         try:
             user = update.message.from_user
         except (NameError, AttributeError):
-            try:
-                user = update.inline_query.from_user
-            except (NameError, AttributeError):
-                try:
-                    user = update.chosen_inline_result.from_user
-                except (NameError, AttributeError):
-                    try:
-                        user = update.callback_query.from_user
-                    except (NameError, AttributeError):
-                        self.logger.error('No hay user_id en el mensaje.')
-                        return ConversationHandler.END
+            self.logger.error('No hay user_id en el mensaje.')
+            return ConversationHandler.END
         user, created = User.get_or_create(
             id=user.id,
-            username=user.username,
             last_name=user.last_name,
             first_name=user.first_name,
         )
         if created:
-            self.logger.info("Usuario {} creado".format(user.username))
+            self.logger.info("Usuario {} creado".format(user.id))
         user_data['user'] = user
         return func(self, bot, update, user_data, *args, **kwargs)
     return wrapped
@@ -82,11 +72,11 @@ class Cardenal(object):
         users = User.select()
         while not self._zmq_server.msgs_queue.empty():
             msg = self._zmq_server.msgs_queue.get()
-            query = users.where((User.id == msg['user_id']) | (User.username == msg['username']))
+            query = users.where((User.id == msg['user_id']))
             if query.exists():
                 user = query.get()
                 try:
-                    self.logger.info("Enviando mensaje a {0}.".format(user.username))
+                    self.logger.info("Enviando mensaje a {0}.".format(user.id))
                     bot.sendMessage(
                         user.id,
                         text=msg['msg']
@@ -95,7 +85,7 @@ class Cardenal(object):
                     self.logger.error('Timeout enviando el mensaje {0}'.format(msg))
                     self._zmq_server.msgs_queue.put(msg)
             else:
-                self.logger.error('El usuario {} no existe'.format(msg['username'] or msg['user_id']))
+                self.logger.error('El usuario {} no existe'.format(msg['user_id']))
 
     @check_auth
     def _start(self, bot, update, user_data):
@@ -103,7 +93,6 @@ class Cardenal(object):
             user_data['user'].first_name)
         msg += 'Tu información para generar notificaciones es la siguiente: \n'
         msg += ' ID: {} \n'.format(user_data['user'].id)
-        msg += ' username: {} \n'.format(user_data['user'].username)
         update.message.reply_text(msg)
 
     def _error(self, bot, update, error):
