@@ -92,23 +92,23 @@ If everything is right the bot will send you a messages with your data.
       :width: 250pt
       :align: center
 
-4. Clients
+4. Generators
 ^^^^^^^^^^^^^^^^^^^^
 
-Cardenal server is coded in python, but the fact that we use the ZMQ library allows you to operate with clients for different lenguagges.
-Any language that support the ZMQ library and allows to mount a PUB/SUB scheme if factible to function as Cardenal client.
+Generators are packages that allows you to send messages to Cardenal. They *generate* the information to be reported.
 
-For more information please go to section `Clients`
+When a generator is created it have to have a name (just like a logger).
+Then the Telegram clients will suscribe to the messages of this generator with this name
 
-Here we have an example of how to send messages using the client `cardenal-python-client`_::
+Cardenal server is coded in python, but the fact that we use the ZMQ library allows you to operate with generators for different lenguages.
+Any language that support the ZMQ library and allows to mount a PUB/SUB scheme if factible to function as Cardenal generator.
+
+Here we have an example of how to send messages using the generator `cardenal-python-generator`_::
 
 
-    >> from CardenalClient.client import CardenalClient
-    >> cli = CardenalClient('localhost')  # This is because we are running the server localy
-    >> user_id = 12345  # My telegram ID. Cardenal send you this when you log to the server (go to step 3)
-    >> username = 'myUsername'  # Telegram Username
-    >> cli.txt_msg('Message using my user ID', user_id=user_id)
-    >> cli.txt_msg('Message using my username', username=username)
+    >> from CardenalGenerator.generator import CardenalGenerator
+    >> gen = CardenalGenerator('myGenerator')  # You have to give the generator a name
+    >> cli.send_message('Message from myGenerator')
 
 Voila!
 
@@ -125,7 +125,7 @@ Voila!
 
 
 .. _ZMQ: http://zeromq.org/
-.. _cardenal-python-client: https://github.com/Bgeninatti/cardenal-python-client
+.. _cardenal-python-generator: https://github.com/Bgeninatti/cardenal-python-generator
 .. _BotFather: https://core.telegram.org/bots#6-botfather
 .. _`ZMQ lenguage Bindings`: http://zeromq.org/bindings:_start
 .. _peewee: http://docs.peewee-orm.com/en/latest/
