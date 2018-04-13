@@ -1,13 +1,22 @@
 # -*- coding: utf-8 -*-
 import logging
 from functools import wraps
-from telegram.ext import Updater, CommandHandler, MessageHandler, ConversationHandler, Job, Filters
+from telegram import ReplyKeyboardMarkup
+from telegram.ext import (BaseFilter,
+                          Updater,
+                          CommandHandler,
+                          MessageHandler,
+                          ConversationHandler,
+                          RegexHandler,
+                          Filters)
 from telegram.error import TimedOut
-from .models import User, Generator, Suscriptions, init_db
+from peewee import DoesNotExist
+from .models import User, Generator, Subscriptions, init_db
 from .zmq_server import CardenalZmqServer
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+MAIN_MENU, SUBSCRIBE, UNSUBSCRIBE = range(3)
 
 
 def check_auth(func):
@@ -27,7 +36,7 @@ def check_auth(func):
         if created:
             generators = Generator.select()
             for g in generators:
-                Suscriptions.create(user=user.id, generator=g.id)
+                Subscriptions.create(user=user.id, generator=g.id)
 
             self.logger.info(
                 "Usuario {0} creado y suscripto a {1} generadores".format(
@@ -65,15 +74,27 @@ class Cardenal(object):
             notification_period
         )
 
-        self._dp.add_handler(CommandHandler(
-            "start",
-            self._start,
-            pass_user_data=True))
-        self._dp.add_handler(MessageHandler(
-            Filters.text,
-            self._start,
-            pass_user_data=True))
-        self._dp.add_error_handler(self._error)
+        conv_handler = ConversationHandler(
+            entry_points=[CommandHandler('start',
+                                         self.start,
+                                         pass_user_data=True)],
+            states={
+                MAIN_MENU: [RegexHandler('^(Subscribe|Unsubscribe|Get\ me\ out\ from\ here)$',
+                                         self.main_menu,
+                                         pass_user_data=True)],
+                SUBSCRIBE: [MessageHandler(Filters.text,
+                                           self.subscribe,
+                                           pass_user_data=True),
+                            CommandHandler('skip', self.skip)],
+                UNSUBSCRIBE: [MessageHandler(Filters.text,
+                                             self.unsubscribe,
+                                             pass_user_data=True),
+                              CommandHandler('skip', self.skip)],
+            },
+            fallbacks=[CommandHandler('cancel', self.error)]
+        )
+
+        self._dp.add_handler(conv_handler)
 
     def get_generator(self, generator_name):
         generator, created = Generator.get_or_create(
@@ -85,15 +106,32 @@ class Cardenal(object):
 
         return generator
 
-    def get_users_subscribed(self, generator_id):
-        """Find users susbcribed to the Generator ``generator_id``"""
+    def get_all_generators(self):
+        """Get all generators created"""
+        query = Generator.select()
 
-        query = Suscriptions.select(Suscriptions.user).where(
-            (Suscriptions.generator == generator_id)
+        if query.exists():
+            return [u for u in query]
+
+    def get_generators_subscribed(self, user_id):
+        """Find generators which ``user_id`` is subscribed"""
+
+        query = Subscriptions.select(Subscriptions.generator).where(
+            (Subscriptions.user == user_id)
         )
 
         if query.exists():
-            return [susbcription.user for susbcription in query]
+            return [subscription.generator for subscription in query]
+
+    def get_users_subscribed(self, generator_id):
+        """Find users susbcribed to the Generator ``generator_id``"""
+
+        query = Subscriptions.select(Subscriptions.user).where(
+            (Subscriptions.generator == generator_id)
+        )
+
+        if query.exists():
+            return [subscription.user for subscription in query]
 
     def check_for_notifications(self, bot, job):
         while not self._zmq_server.msgs_queue.empty():
@@ -116,14 +154,106 @@ class Cardenal(object):
                 self.logger.error(error)
 
     @check_auth
-    def _start(self, bot, update, user_data):
-        msg = 'Bienvenido {0}... \n\n'.format(
+    def start(self, bot, update, user_data):
+        msg = 'Welcome {0}... Thanks for using Cardenal. \n\n'.format(
             user_data['user'].first_name)
-        msg += 'Tu información para generar notificaciones es la siguiente: \n'
-        msg += ' ID: {} \n'.format(user_data['user'].id)
-        update.message.reply_text(msg)
+        generators_subscribed = self.get_generators_subscribed(user_data['user'].id)
+        if generators_subscribed:
+            msg = 'Now you are subscribed to {0} generators:\n{1}\n\n'.format(
+                len(generators_subscribed),
+                '\n'.join([g.name for g in generators_subscribed]))
+        else:
+            msg += 'You are not subscribed to any generator.\n'
+        msg += '¿What do you want to do?'
+        keyboard = [['Subscribe'], ['Unsubscribe'], ['Get me out from here']]
+        bot.sendMessage(chat_id=update.message.chat.id,
+                        text=msg,
+                        reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
+        return MAIN_MENU
 
-    def _error(self, bot, update, error):
+    def main_menu(self, bot, update, user_data):
+        if update.message.text == 'Subscribe':
+            keyboard = [[g.name] for g in self.get_all_generators()] + [['\skip']]
+            msg = 'Please select the generators you want to SUBSCRIBE.'
+            rta = SUBSCRIBE
+            update.message.reply_text(msg,
+                                      reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
+        elif update.message.text == 'Unsubscribe':
+            keyboard = [[g.name] for g in self.get_generators_subscribed(user_data['user'].id)] + [['\skip']]
+            msg = 'Please select the generators you want to UNSUBSCRIBE.'
+            rta = UNSUBSCRIBE
+            update.message.reply_text(msg,
+                                      reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
+        elif update.message.text == 'Get me out from here.':
+            update.message.reply_text('OK. Bye!')
+            rta = ConversationHandler.END
+        return rta
+
+    def skip(self, bot, update):
+        msg = '¿What do you want to do?'
+        keyboard = [['Subscribe'], ['Unsubscribe'], ['Get me out from here.']]
+        bot.sendMessage(chat_id=update.message.chat.id,
+                        text=msg,
+                        reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
+        return MAIN_MENU
+
+    def subscribe(self, bot, update, user_data):
+        try:
+            generator = Generator.get(Generator.name == update.message.text)
+            subscription, created = Subscriptions.get_or_create(
+                user=user_data['user'].id,
+                generator=generator.id,
+            )
+            if created:
+                generators_subscribed = self.get_generators_subscribed(user_data['user'].id)
+                if generators_subscribed:
+                    msg = 'Now you are subscribed to {0} generators:\n{1}\n\n'.format(
+                        len(generators_subscribed),
+                        '\n'.join([g.name for g in generators_subscribed]))
+                else:
+                    msg = 'Now you are not subscribed to any generator.\n'
+            else:
+                msg = "Mmmm... You already subscribed to generator {}".format(generator.name)
+        except DoesNotExist:
+            msg = "UPS!... I have no generators with the name {}".format(generator.name)
+
+        msg += '\n\n¿What else do you want to do?'
+        keyboard = [['Subscribe'], ['Unsubscribe'], ['Get me out from here.']]
+        bot.sendMessage(chat_id=update.message.chat.id,
+                        text=msg,
+                        reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
+        return MAIN_MENU
+
+    def unsubscribe(self, bot, update, user_data):
+        try:
+            generator = Generator.get(Generator.name == update.message.text)
+        except DoesNotExist:
+            msg = "UPS!... I have no generators with the name {}".format(generator.name)
+
+        try:
+            subscription = Subscriptions.get(
+                user=user_data['user'].id,
+                generator=generator.id,
+            )
+            subscription.delete_instance()
+            generators_subscribed = self.get_generators_subscribed(user_data['user'].id)
+            if generators_subscribed:
+                msg = 'Now you are subscribed to {0} generators:\n{1}\n\n'.format(
+                    len(generators_subscribed),
+                    '\n'.join([g.name for g in generators_subscribed]))
+            else:
+                msg = 'Now you are not subscribed to any generator.\n'
+        except DoesNotExist:
+            msg = "Mmmm... You are not subscribed to generator {}".format(generator.name)
+
+        msg += '\n\n¿What else do you want to do?'
+        keyboard = [['Subscribe'], ['Unsubscribe'], ['Get me out from here.']]
+        bot.sendMessage(chat_id=update.message.chat.id,
+                        text=msg,
+                        reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
+        return MAIN_MENU
+
+    def error(self, bot, update, error):
         self.logger.warn('Update "%s" caused error "%s"' % (update, error))
 
     def run(self):

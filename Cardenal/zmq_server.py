@@ -73,6 +73,7 @@ class CardenalZmqServer(object):
     def _keep_checking(self):
         while not self._stop:
             msgs = self.check_msgs()
+            if len(msgs):
+                self.logger.info("Se crearon {} notificaciones".format(len(msgs)))
             for m in msgs:
-                self.logger.info("Notificación creada correctamente.")
                 self.msgs_queue.put(m)

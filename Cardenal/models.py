@@ -23,7 +23,7 @@ class Generator(BaseModel):
     name = CharField(unique=True)
 
 
-class Suscriptions(BaseModel):
+class Subscriptions(BaseModel):
     user = ForeignKeyField(User)
     generator = ForeignKeyField(Generator)
 
@@ -34,5 +34,5 @@ class Suscriptions(BaseModel):
 def init_db(db_path):
     database.init(db_path)
     database.connect()
-    database.create_tables([User, Generator, Suscriptions])
+    database.create_tables([User, Generator, Subscriptions])
     return database
